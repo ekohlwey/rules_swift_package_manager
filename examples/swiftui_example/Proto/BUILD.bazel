@@ -1,0 +1,31 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_grpc_library", "swift_proto_library")
+
+proto_library(
+    name = "foo_service_proto",
+    srcs = ["foo_service.proto"],
+)
+
+swift_proto_library(
+    name = "foo_service_swift_proto",
+    deps = [
+        ":foo_service_proto",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+swift_grpc_library(
+    name = "foo_service_swift_grpc_client",
+    srcs = [":foo_service_proto"],
+    flavor = "client",
+    deps = [":foo_service_swift_proto"],
+    visibility = ["//visibility:public"],
+)
+
+swift_grpc_library(
+    name = "foo_service_swift_grpc_server",
+    srcs = [":foo_service_proto"],
+    flavor = "server",
+    deps = [":foo_service_swift_proto"],
+    visibility = ["//visibility:public"],
+)

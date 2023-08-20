@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+message Foo {
+    string name = 1;
+}
+
+message GetFooRequest {
+  
+}
+
+message GetFooResponse {
+  Foo foo = 1;
+}
+
+message SetFooRequest {
+  Foo foo = 1;
+}
+
+message SetFooResponse {
+  
+}
+
+service FooService {
+    rpc GetFoo(GetFooRequest) returns (GetFooResponse);
+    rpc SetFoo(SetFooRequest) returns (SetFooResponse);
+}

@@ -1,0 +1,94 @@
+load(
+    "@build_bazel_rules_apple//apple:ios.bzl",
+    "ios_application",
+    "ios_unit_test",
+)
+load("@build_bazel_rules_apple//apple:apple.bzl", "local_provisioning_profile")
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+load(
+    "@rules_xcodeproj//xcodeproj:defs.bzl",
+    "top_level_target",
+    "xcode_provisioning_profile",
+    "xcodeproj",
+)
+
+xcodeproj(
+    name = "xcodeproj",
+    project_name = "Client",
+    tags = ["manual"],
+    top_level_targets = [
+        top_level_target(
+            ":ClientApp",
+            target_environments = [
+                "device",
+                "simulator",
+            ],
+        ),
+        ":ClientTests",
+        ":ClientUITests",
+    ],
+)
+
+ios_application(
+    name = "ClientApp",
+    bundle_id = "rocks.yourself.WorkoutApp",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    infoplists = ["Info.plist"],
+    minimum_os_version = "15.0",
+    visibility = ["//visibility:public"],
+    deps = [":Client"],
+    provisioning_profile = ":xcode_provisioning_profile",
+)
+
+local_provisioning_profile(
+    name = "local_provisioning_profile",
+    profile_name = "Yourself Rocks Personal Profile",
+    tags = ["manual"],
+    team_id = "236RQG58Y7",
+)
+
+xcode_provisioning_profile(
+    name = "xcode_provisioning_profile",
+    managed_by_xcode = True,
+    provisioning_profile = ":local_provisioning_profile",
+)
+
+swift_library(
+    name = "Client",
+    srcs = glob(["Client/**/*.swift"]),
+    deps = [
+        "@swiftpkg_factory//:Sources_Factory",
+        "//Proto:foo_service_swift_grpc_client",
+    ]
+)
+
+ios_unit_test(
+    name = "ClientTests",
+    bundle_id = "com.example.tests",
+    minimum_os_version = "15.0",
+    test_host = ":ClientApp",
+    visibility = ["//visibility:public"],
+    deps = [":ClientTestsLib"],
+)
+
+swift_library(
+    name = "ClientTestsLib",
+    srcs = glob(["ClientTests/**/*.swift"]),
+)
+
+ios_unit_test(
+    name = "ClientUITests",
+    bundle_id = "com.example.tests",
+    minimum_os_version = "15.0",
+    test_host = ":ClientApp",
+    visibility = ["//visibility:public"],
+    deps = [":ClientUITestsLib"],
+)
+
+swift_library(
+    name = "ClientUITestsLib",
+    srcs = glob(["ClientUITests/**/*.swift"]),
+)
